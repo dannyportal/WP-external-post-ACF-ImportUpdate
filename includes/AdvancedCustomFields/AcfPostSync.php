@@ -1,19 +1,19 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields;
+namespace ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogLevel;
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogService;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogLevel;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogService;
 use SodiumException;
 use WP_Query;
 
 /**
  * Sync service used for creating/updating the WordPress post that will be
- * used for displaying an agency's award data and other information.
+ * used for displaying an entity's data and other information.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields
+ * @package ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields
  */
 class AcfPostSync {
     /**
@@ -21,7 +21,7 @@ class AcfPostSync {
      * as image attachments. Used to search posts for their agency logo images 
      * by their URL.
      */
-    const META_KEY_AGENCY_LOGO_URL = 'ai_hcai_agency_logo_url';
+    const META_KEY_AGENCY_LOGO_URL = 'ecs_agency_logo_url';
 
     /**
      * Wordpress post type to use for the agency posts created by this
@@ -29,16 +29,22 @@ class AcfPostSync {
      * created by this plugin so they can be separately managed from other
      * types of posts.
      */
-    const POST_TYPE_AGENCY = 'agency';
+    const DEFAULT_POST_TYPE = 'entity';
+    const SETTINGS_TARGET_POST_TYPE_ID = 'ecs_target_post_type';
+
+    public static function getTargetPostType(): string {
+        $v = get_option(self::SETTINGS_TARGET_POST_TYPE_ID);
+        return is_string($v) && strlen($v) ? $v : self::DEFAULT_POST_TYPE;
+    }
 
     /**
      * Initialize the agency post sync with the agency's data.
      * 
-     * @param AcfAgencyModel $agencyModel Data model for the agency whose data will be used to create/update the WordPress post.
+     * @param AcfEntityModel $entityModel Data model for the agency whose data will be used to create/update the WordPress post.
      * @return void 
      */
     public function __construct(
-        private AcfAgencyModel $agencyModel
+        private AcfEntityModel $entityModel
     ) {}
 
     /**
@@ -47,13 +53,13 @@ class AcfPostSync {
      * 
      * @return int WordPress post ID of the post that matched the unique identifier, or 0 if no match was found (0 indicates creating a new post when used for updating).
      */
-    private function queryAgencyPostId(): int {
+    private function queryEntityPostId(): int {
         $wpQueryArgs = [
-            'post_type' => self::POST_TYPE_AGENCY,
+            'post_type' => self::getTargetPostType(),
             'post_status' => 'any',
             'posts_per_page' => 1,
-            'meta_key' => $this->agencyModel->getUniqueIdFieldName(),
-            'meta_value' => $this->agencyModel->getUniqueId()
+            'meta_key' => $this->entityModel->getUniqueIdFieldName(),
+            'meta_value' => $this->entityModel->getUniqueId()
         ];
 
         $query = new WP_Query($wpQueryArgs);
@@ -70,18 +76,18 @@ class AcfPostSync {
      * 
      * @return int Returns the WordPress post ID for the agency, or 0 if there were errors.
      */
-    public function syncAgencyPost(): int {
+    public function syncEntityPost(): int {
         // Get existing agency post ID if one exists
-        $existingPostId = $this->queryAgencyPostId();
-        $uniqueIdFieldName = $this->agencyModel->getUniqueIdFieldName() ?: 'Foo';
-        $uniqueIdFieldValue = $this->agencyModel->getUniqueId() ?: '0';
+        $existingPostId = $this->queryEntityPostId();
+        $uniqueIdFieldName = $this->entityModel->getUniqueIdFieldName() ?: 'Foo';
+        $uniqueIdFieldValue = $this->entityModel->getUniqueId() ?: '0';
 
         // Create/update the agency post and set its main properties
         $wpPostParameters = [
             'ID' => $existingPostId,
-            'post_title' => $this->agencyModel->getAgencyName(),
-            'post_content' => $this->agencyModel->getAgencyDescription() . $this->getHiddenSearchContent(),
-            'post_type' => self::POST_TYPE_AGENCY,
+            'post_title' => $this->entityModel->getAgencyName(),
+            'post_content' => $this->entityModel->getAgencyDescription() . $this->getHiddenSearchContent(),
+            'post_type' => self::getTargetPostType(),
             'post_status' => 'publish',
             'meta_input' => [
                 $uniqueIdFieldName => $uniqueIdFieldValue
@@ -102,7 +108,7 @@ class AcfPostSync {
         } else {
             // TODO: Disabled due to slow performance on full initial sync where all logos have to be downloaded.
             // Re-enable once a solution is found such as a side job/queue.
-            //$this->setAgencyPostFeaturedImage($this->agencyModel->getLogoUrl(), $newPostId);
+            //$this->setAgencyPostFeaturedImage($this->entityModel->getLogoUrl(), $newPostId);
         }
         
         return $newPostId;
@@ -116,15 +122,15 @@ class AcfPostSync {
      * @return string Returns the hidden content to include in the post for search indexing.
      */
     protected function getHiddenSearchContent(): string {
-        $hiddenContent = '<p class="hcai_hidden_search_content" style="line-height:0; overflow:hidden; padding:0; margin:0;">';
-        $agencyModelArray = $this->agencyModel->toArray();
+        $hiddenContent = '<p class="ecsi_hidden_search_content" style="line-height:0; overflow:hidden; padding:0; margin:0;">';
+        $entityModelArray = $this->entityModel->toArray();
 
         // Include the full address for searching the agency's direct address
-        $fullAddress = $agencyModelArray['FullAddress'] ?? '';
+        $fullAddress = $entityModelArray['FullAddress'] ?? '';
         $hiddenContent .= ' ' . $fullAddress;
 
         // Include all related Postal Codes for seaching service areas.
-        $listingPostalCodes = $agencyModelArray['Listing_PostalCode'] ?? [];
+        $listingPostalCodes = $entityModelArray['Listing_PostalCode'] ?? [];
         foreach($listingPostalCodes AS $listingPostalCode) {
             $postalCodeId = $listingPostalCode['PostalCodeId'] ?? '';
             $hiddenContent .= ' ' . $postalCodeId;
@@ -215,7 +221,7 @@ class AcfPostSync {
     public static function deleteAllAgencyPosts(): void {
         // Query all agency posts
         $args = [
-            'post_type'      => self::POST_TYPE_AGENCY,
+            'post_type'      => self::getTargetPostType(),
             'posts_per_page' => -1, // Get all posts
             'post_status'    => 'any', // Include all post statuses
             'fields'         => 'ids' // Only get post IDs to optimize the query

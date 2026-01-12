@@ -1,26 +1,26 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\Services;
+namespace ExampleVendor\ExternalContentSyncImporter\Services;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogService;
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogLevel;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogService;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogLevel;
 use WpOrg\Requests\Exception\InvalidArgument;
 
 /**
  * Service for fetching raw agency data from a remote REST service.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\Services
+ * @package ExampleVendor\ExternalContentSyncImporter\Services
  */
-class AgencyDataRESTService {
+class RemoteDataRESTService {
 
     /** 
      * Settings field ID for the current offset value. This is used to keep 
      * track of the offset value between requests so that the next request
      * can automatically pick up where the previous one left off.
      */
-    const CURRENT_OFFSET_FIELD_ID = 'ai_hcai_restapi_current_offset';
+    const CURRENT_OFFSET_FIELD_ID = 'ecs_restapi_current_offset';
 
     /**
      * Settings field ID for the maximum number of results to fetch for each 
@@ -28,7 +28,7 @@ class AgencyDataRESTService {
      * takes less than the maximum execution time allowed by the server,
      * typically 180 seconds for PHP op_chache defaults.
      */
-    const MAX_RESULTS_PER_REQUEST_FIELD_ID = 'ai_hcai_max_results_per_request';
+    const MAX_RESULTS_PER_REQUEST_FIELD_ID = 'ecs_max_results_per_request';
 
     /**
      * Offset value that indicates all results have been fetched and the
@@ -89,7 +89,7 @@ class AgencyDataRESTService {
     private int $maxResultsPerRequest;
     
     /**
-     * Construct the AgencyDataRESTService with the necessary settings to fetch
+     * Construct the RemoteDataRESTService with the necessary settings to fetch
      * the next batch of agency data.
      * 
      * @param string $token Auth token to use when fetching agency data.
@@ -98,16 +98,16 @@ class AgencyDataRESTService {
     public function __construct(
         string $token
     ) {
-        $this->restApiEndpoint = get_option('ai_hcai_restapi_endpoint', '');
-        $this->httpRequestMethod = get_option('ai_hcai_restapi_http_method', 'GET');
+        $this->restApiEndpoint = get_option('ecs_restapi_endpoint', '');
+        $this->httpRequestMethod = get_option('ecs_restapi_http_method', 'GET');
         $this->httpHeaders = [
             'Authorization' => 'Bearer ' . $token,
             'Accept-Profile' => 'AgpAward',
             'Content-Profile' => 'AgpAward'
         ];
-        $this->timeoutSeconds = get_option('ai_hcai_restapi_timeout_seconds', 45); 
+        $this->timeoutSeconds = get_option('ecs_restapi_timeout_seconds', 45); 
         $this->queryString = $this->removeWhiteSpaceFromString(
-            get_option('ai_hcai_restapi_query_string', '')
+            get_option('ecs_restapi_query_string', '')
         );
         $this->currentOffset = get_option(self::CURRENT_OFFSET_FIELD_ID, 0);
         $this->maxResultsPerRequest = get_option(self::MAX_RESULTS_PER_REQUEST_FIELD_ID, 20);

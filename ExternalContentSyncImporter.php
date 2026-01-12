@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: HomeCare Agency Importer
- * Description: Imports and updates agency data from a REST service, setting logos as featured images only if they haven't been uploaded before, handling ACF fields for addresses, award images, trusted provider badges, and assigning multiple award taxonomy terms. Deletes entries not present in the latest JSON and updates existing posts. Includes immediate import upon activation and daily updates.
+ *  * Plugin Name: External Content Sync Importer
+ *  * Description: Imports and updates content items from an external REST endpoint and synchronizes ACF fields on a scheduled basis.
  * Version: 2.1
- * Author: Activated Insights
+ *  * Author: Danny Portal
  */
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
@@ -11,13 +11,13 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 /**
  * PHP Autoloader function for the plugin to automatically search
  * for classes in the "includes" folder that are in the 
- * ActivatedInsights\HomeCareAgencyImport namespace. Removes the
+ * ExampleVendor\ExternalContentSyncImporter namespace. Removes the
  * need for complex require_once statements and instead the "use"
  * statement can be used to include classes by their qualified names.
  */
-spl_autoload_register('ai_hcai_plugin_autoloader');
-function ai_hcai_plugin_autoloader($className) {
-    $rootNamespace = 'ActivatedInsights\\HomeCareAgencyImporter\\';
+spl_autoload_register('ecs_plugin_autoloader');
+function ecs_plugin_autoloader($className) {
+    $rootNamespace = 'ExampleVendor\ExternalContentSyncImporter\\';
     
     // Only load classes that are in the root namespace
     if (false === strpos($className, $rootNamespace)) {
@@ -34,8 +34,8 @@ function ai_hcai_plugin_autoloader($className) {
     require_once $classFile;
 }
 
-use ActivatedInsights\HomeCareAgencyImporter\Plugin;
-use ActivatedInsights\HomeCareAgencyImporter\Services\TaskService;
+use ExampleVendor\ExternalContentSyncImporter\Plugin;
+use ExampleVendor\ExternalContentSyncImporter\Services\TaskService;
 
 /**
  * Initialize the plugin. Instantiating the class takes care of

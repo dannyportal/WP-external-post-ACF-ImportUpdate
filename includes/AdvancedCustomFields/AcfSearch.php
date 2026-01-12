@@ -1,6 +1,6 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields;
+namespace ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields;
 
 use WP_Query;
 
@@ -12,9 +12,9 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
  * 
  * Key Features:
  * 1. Filters posts by the "award" taxonomy terms.
- * 2. Dynamically filters posts by custom fields like `hcai_State`.
+ * 2. Dynamically filters posts by custom fields like `ecsi_State`.
  * 3. Allows searching by post title/content.
- * 4. Sorts posts by a precomputed `hcai_priority_order` field, ensuring posts with reviews are prioritized.
+ * 4. Sorts posts by a precomputed `ecsi_priority_order` field, ensuring posts with reviews are prioritized.
  * 5. Implements pagination for better performance.
  */
 class AcfSearch {
@@ -70,7 +70,7 @@ class AcfSearch {
         $companyId = get_query_var('companyid_redirect');
         if ($companyId) {
             $post = get_posts([
-                'post_type'  => 'agency', // or your custom post type
+                'post_type'  => AcfPostSync::getTargetPostType(), // or your custom post type
                 'meta_key'   => 'CompanyId',
                 'meta_value' => $companyId,
                 'numberposts' => 1,
@@ -102,7 +102,7 @@ class AcfSearch {
         }
 
         // Restrict results to the "agency" post type
-        $query->set('post_type', 'agency');
+        $query->set('post_type', AcfPostSync::getTargetPostType());
 
         // Get the search term
         $search_term = $query->get('s');
@@ -111,8 +111,8 @@ class AcfSearch {
         $meta_query = [];
 
         // Add a meta query for the 'State' field if provided via query string
-        if (!empty($_GET['hcai_State'])) {
-            $state = sanitize_text_field($_GET['hcai_State']); // Sanitize user input
+        if (!empty($_GET['ecsi_State'])) {
+            $state = sanitize_text_field($_GET['ecsi_State']); // Sanitize user input
             $meta_query[] = [
                 'key'     => 'State',
                 'value'   => $state,
@@ -154,10 +154,10 @@ class AcfSearch {
 
         /**
          * Sorting:
-         * - Sorts posts first by `hcai_priority_order` (higher values first).
+         * - Sorts posts first by `ecsi_priority_order` (higher values first).
          * - Falls back to sorting by `date` for posts with the same priority.
          */
-        $query->set('meta_key', 'hcai_priority_order');
+        $query->set('meta_key', 'ecsi_priority_order');
         $query->set('orderby', [
             'meta_value_num' => 'DESC', // Priority first
             'date'           => 'DESC', // Fallback to recent posts

@@ -1,6 +1,6 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields;
+namespace ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
  * 
  * See https://codex.wordpress.org/Shortcode_API
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields
+ * @package ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields
  */
 class AcfShortCodes {
     /**
@@ -51,7 +51,7 @@ class AcfShortCodes {
         $imageCssStyle = $attributes['style'] ?? 'max-width: 100%; height: auto; object-fit:contain';
     
         // Check if we are in the correct post type
-        if (!$post || $post->post_type !== 'agency') {
+        if (!$post || $post->post_type !== AcfPostSync::getTargetPostType()) {
             // Use the default logo if not in a known agency post
             $logoImage = $defaultLogo;
         } else {
@@ -64,7 +64,7 @@ class AcfShortCodes {
         $logoBaseUrl = get_option(AcfFieldSync::LOGO_BASE_URL_FIELD_ID, '');
 
         // Create the HTML for the logo image
-        $html .= '<img src="' . esc_url($logoBaseUrl . $logoImage) . '" alt="Agency Logo" style="' . esc_attr($imageCssStyle) . '">';
+        $html .= '<img src="' . esc_url($logoBaseUrl . $logoImage) . '" alt="Entity Logo" style="' . esc_attr($imageCssStyle) . '">';
         return $html;
     }
 
@@ -167,8 +167,8 @@ class AcfShortCodes {
         $outputHtml = '';
     
         // Check if we are in the correct post type
-        if (!$post || $post->post_type !== 'agency') {
-            return 'Not in agency post type or post is not set.';
+        if (!$post || $post->post_type !== AcfPostSync::getTargetPostType()) {
+            return 'Not in entity post type or post is not set.';
         }
     
         // Combine the fields into a single address line for display

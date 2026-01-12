@@ -1,9 +1,9 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields;
+namespace ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields;
 
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogLevel;
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogService;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogLevel;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogService;
 use DateTime;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
@@ -17,16 +17,14 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
  * a bunch of string array keys in the logic that could easily fall
  * out of sync or be hard to trace.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields
+ * @package ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields
  */
-class AcfAgencyModel {
+class AcfEntityModel {
     /**
      * URL prefix to automatically add to agency logo URL values in the 
      * agency data being imported. Can be set to empty if the full URL is 
      * contained in the agency data logo URL field.
      */
-    const LOGO_URL_PREFIX = 'https://example.com'; // TODO: set to your logo host (scrubbed before publishing)
-
     /**
      * When displaying an agency's awards earned, limits the number of years
      * displayed to the N most recent years defined by this value (to prevent
@@ -380,7 +378,7 @@ class AcfAgencyModel {
     /**
      * Get the full URL to be used for retreiving agency logo images.
      * 
-     * @return string Gets the agency's specific logo image path, prefixed the the LOGO_URL_PREFIX constant in this class.
+     * @return string Gets the agency's specific logo image path, prefixed the the configured base URL in this class.
      */
     public function getLogoUrl(): string {
         $logoUrlValue = $this->agencyData['Logo'] ?? '';
@@ -388,7 +386,7 @@ class AcfAgencyModel {
         // Only prefix the logo URL if the original value isn't empty
         $logoUrl = (empty($logoUrlValue)) ? 
             '':
-            self::LOGO_URL_PREFIX . $logoUrlValue;
+            (get_option(AcfFieldSync::LOGO_BASE_URL_FIELD_ID) ?: 'https://example.com') . $logoUrlValue;
 
         return $logoUrl;
     }

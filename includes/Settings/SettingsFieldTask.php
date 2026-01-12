@@ -1,11 +1,11 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\Settings;
+namespace ExampleVendor\ExternalContentSyncImporter\Settings;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\Settings\SettingsField;
-use ActivatedInsights\HomeCareAgencyImporter\Services\TaskService;
+use ExampleVendor\ExternalContentSyncImporter\Settings\SettingsField;
+use ExampleVendor\ExternalContentSyncImporter\Services\TaskService;
 
 /**
  * HTML dropdown selector that lists all the public methods
@@ -13,7 +13,7 @@ use ActivatedInsights\HomeCareAgencyImporter\Services\TaskService;
  * manually run after the settings are saved. Used for 
  * testing, development, manual sync, etc.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\Settings
+ * @package ExampleVendor\ExternalContentSyncImporter\Settings
  */
 class SettingsFieldTask extends SettingsFieldSelect {
     /**

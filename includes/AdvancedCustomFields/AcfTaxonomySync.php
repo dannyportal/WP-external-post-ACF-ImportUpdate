@@ -1,17 +1,17 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields;
+namespace ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogLevel;
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogService;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogLevel;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogService;
 
 /**
  * Sync service used for importing/setting agency-related taxonomy terms
  * in WordPress.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields
+ * @package ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields
  */
 class AcfTaxonomySync {
 
@@ -42,12 +42,12 @@ class AcfTaxonomySync {
     /**
      * Initialize the agency taxonomy sync.
      * 
-     * @param AcfAgencyModel $agencyModel Agency data containing the taxonomy terms to be imported.
+     * @param AcfEntityModel $entityModel Agency data containing the taxonomy terms to be imported.
      * @param int $postId WordPress post ID associated with the agency model. Taxonomy terms will be added in relation to this post.
      * @return void 
      */
     public function __construct(
-        private AcfAgencyModel $agencyModel,
+        private AcfEntityModel $entityModel,
         private int $postId
     ) {}
 
@@ -58,7 +58,7 @@ class AcfTaxonomySync {
      * @return void 
      */
     public function syncAgencyTaxonomies(): void {
-        $awardTitles = $this->agencyModel->getAwardTitles();
+        $awardTitles = $this->entityModel->getAwardTitles();
         $awardTermIds = $this->setAgencyAwardTaxonomies($awardTitles);
 
         // Make sure this runs after setAgencyAwardTaxonomies() since
@@ -66,10 +66,10 @@ class AcfTaxonomySync {
         // that were set previously.
         $this->setAgencyAwardYearTaxonomies($awardTermIds);
         
-        $state = $this->agencyModel->getState();
+        $state = $this->entityModel->getState();
         $this->setAgencyTaxonomy($state, self::TAXONOMY_STATE);
 
-        $city = $this->agencyModel->getCity();
+        $city = $this->entityModel->getCity();
         $this->setAgencyTaxonomy($city, self::TAXONOMY_CITY);
     }
 
@@ -83,7 +83,7 @@ class AcfTaxonomySync {
      */
     private function setAgencyAwardYearTaxonomies($awardTermIds) {
         $awardYearTermIds = [];
-        $awardInfo = $this->agencyModel->toArray()['AwardInfo'];
+        $awardInfo = $this->entityModel->toArray()['AwardInfo'];
 
         foreach($awardInfo as $award) {
             $awardTitle = $award['Title'];
@@ -145,7 +145,7 @@ class AcfTaxonomySync {
                 LogService::log(
                     __METHOD__,
                     LogLevel::ERROR,
-                    "Failed to set taxonomy term '$term' in taxonomy '$taxonomy' for post ID '$this->postId' | " . json_encode($this->agencyModel->toArray(), 0, 1),
+                    "Failed to set taxonomy term '$term' in taxonomy '$taxonomy' for post ID '$this->postId' | " . json_encode($this->entityModel->toArray(), 0, 1),
                     false
                 );
             }
@@ -178,7 +178,7 @@ class AcfTaxonomySync {
             LogService::log(
                 __METHOD__,
                 LogLevel::ERROR,
-                "Failed to create taxonomy term '$term' in taxonomy '$taxonomy' | " . json_encode($this->agencyModel->toArray(), 0, 1),
+                "Failed to create taxonomy term '$term' in taxonomy '$taxonomy' | " . json_encode($this->entityModel->toArray(), 0, 1),
                 false
             );
         } elseif (is_array($termResult)) {

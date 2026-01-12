@@ -1,6 +1,6 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\Settings;
+namespace ExampleVendor\ExternalContentSyncImporter\Settings;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly.
  * 
  * Organizationally, SettingsField instances are added to SettingsSection instances.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\Settings
+ * @package ExampleVendor\ExternalContentSyncImporter\Settings
  */
 abstract class SettingsField {
     /**

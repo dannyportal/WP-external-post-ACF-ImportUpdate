@@ -1,12 +1,12 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields;
+namespace ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields\AcfExternalFunctions;
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogLevel;
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogService;
+use ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields\AcfExternalFunctions;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogLevel;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogService;
 use DateTime;
 
 /**
@@ -18,7 +18,7 @@ use DateTime;
  * mapped.  Repeater fields are used to represent nested arrays, and group
  * fields are used to represent nested objects.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\Services
+ * @package ExampleVendor\ExternalContentSyncImporter\Services
  */
 class AcfFieldSync {
     /**
@@ -30,30 +30,30 @@ class AcfFieldSync {
      * Plugin settings field ID that will store the root
      * Advanced Custom Fields field group used for mapping agency data.
      */
-    const SETTINGS_BASE_FIELD_GROUP_ID = 'ai_hcai_customfield_base_group';
+    const SETTINGS_BASE_FIELD_GROUP_ID = 'ecs_customfield_base_group';
 
     /**
      * Plugin settings field ID that will store the Advanced Custom Fields
      * field that will act as the unique identifier for agencies.
      */
-    const SETTINGS_UNIQUEID_FIELD_ID = 'ai_hcai_customfield_uniqueid_field';
+    const SETTINGS_UNIQUEID_FIELD_ID = 'ecs_customfield_uniqueid_field';
 
     /**
      * Plugin settings field ID that will store the Advanced Custom Fields
      * field that will act as the base URL for agency logos.
      */
-    const LOGO_BASE_URL_FIELD_ID = 'ai_hcai_customfield_logo_base_url';
+    const LOGO_BASE_URL_FIELD_ID = 'ecs_customfield_logo_base_url';
 
     /**
      * Initialize the agency custom field sync.
      * 
-     * @param AcfAgencyModel $agencyModel Data model representing an individual agency from the agency data to import.
+     * @param AcfEntityModel $entityModel Data model representing an individual agency from the agency data to import.
      * @param AcfFieldIndex $fieldIndex Field index of the custom fields where the agency data will be mapped.
      * @param int $postId WordPress post ID associated with the agency model. Custom field values will be added in relation to this post.
      * @return void 
      */
     public function __construct(
-        private AcfAgencyModel $agencyModel,
+        private AcfEntityModel $entityModel,
         private AcfFieldIndex $fieldIndex,
         private int $postId,
     ) {}
@@ -118,7 +118,7 @@ class AcfFieldSync {
      * @return void 
      */
     public function syncAgencyFields() {
-        $agencyData = $this->agencyModel->toArray();
+        $agencyData = $this->entityModel->toArray();
         $fieldIndexArray = $this->fieldIndex->toArray();
         
         // Set all the custom fields for the agency's post.

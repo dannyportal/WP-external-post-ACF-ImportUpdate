@@ -1,10 +1,10 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields;
+namespace ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields\AcfExternalFunctions;
+use ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields\AcfExternalFunctions;
 
 /**
  * Utility class used to build an associative array of all the Advanced
@@ -12,7 +12,7 @@ use ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields\AcfExternalFun
  * indexed by their field name. This allows incoming data to quickly find
  * the correct destination using a simple name/structure matching convention.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\Services
+ * @package ExampleVendor\ExternalContentSyncImporter\Services
  */
 class AcfFieldIndex {
     /**

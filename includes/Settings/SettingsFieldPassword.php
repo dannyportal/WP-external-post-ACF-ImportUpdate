@@ -1,17 +1,17 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\Settings;
+namespace ExampleVendor\ExternalContentSyncImporter\Settings;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\Settings\SettingsField;
-use ActivatedInsights\HomeCareAgencyImporter\Services\EncryptionService;
+use ExampleVendor\ExternalContentSyncImporter\Settings\SettingsField;
+use ExampleVendor\ExternalContentSyncImporter\Services\EncryptionService;
 
 /**
  * HTML password input field type for settings plugin forms. Intended for 
  * secure/sensitive data that should be encrypted when stored.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\Settings
+ * @package ExampleVendor\ExternalContentSyncImporter\Settings
  */
 class SettingsFieldPassword extends SettingsField {
 

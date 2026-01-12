@@ -1,10 +1,10 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\Settings;
+namespace ExampleVendor\ExternalContentSyncImporter\Settings;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\Settings\SettingsField;
+use ExampleVendor\ExternalContentSyncImporter\Settings\SettingsField;
 
 /**
  * Class for creating a section in a WordPress plugin settings form. Sections
@@ -12,7 +12,7 @@ use ActivatedInsights\HomeCareAgencyImporter\Settings\SettingsField;
  * be input/stored. Sections should organize fields into related groups
  * such as username/password/host that all go to the same service.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\Settings
+ * @package ExampleVendor\ExternalContentSyncImporter\Settings
  */
 class SettingsSection {
     public function __construct(

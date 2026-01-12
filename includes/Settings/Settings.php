@@ -1,12 +1,12 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\Settings;
+namespace ExampleVendor\ExternalContentSyncImporter\Settings;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields\AcfFieldSync;
-use ActivatedInsights\HomeCareAgencyImporter\Services\AgencyDataRESTService;
-use ActivatedInsights\HomeCareAgencyImporter\Services\TaskService;
+use ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields\AcfFieldSync;
+use ExampleVendor\ExternalContentSyncImporter\Services\RemoteDataRESTService;
+use ExampleVendor\ExternalContentSyncImporter\Services\TaskService;
 
 /**
  * Helper class for setting up custom WordPress plugin settings
@@ -136,7 +136,7 @@ class Settings {
      * @return void 
      */
     public function setSectionsAndFields(): void {
-        $this->addSettingsSection('ai_hcai_task', 'Task Management')
+        $this->addSettingsSection('ecs_task', 'Task Management')
             ->addSettingsField(new SettingsFieldTask(
                 id: TaskService::SETTINGS_RUN_TASK_ID,
                 label: 'Manually Run a Task',
@@ -149,79 +149,86 @@ class Settings {
                 placeholder: 'my_secret_key'
             ))
             ->addSettingsField(new SettingsFieldText(
-                id: 'ai_hcai_task_last_import_start_date',
+                id: 'ecs_task_last_import_start_date',
                 label: 'Last Import Start Date',
-                tip: 'The timestamp of when the most recent import of agency data was started. This value is automatically updated by the plugin and should not be manually changed.',
+                tip: 'The timestamp of when the most recent import of external data was started. This value is automatically updated by the plugin and should not be manually changed.',
                 placeholder: 'No successful import yet',
                 readonly: true
             ))
             ->addSettingsField(new SettingsFieldText(
-                id: 'ai_hcai_task_last_successful_import_date',
+                id: 'ecs_task_last_successful_import_date',
                 label: 'Last Import Complete Date',
-                tip: 'The timestamp of when the last complete import of agency data was successfully synced. This value is automatically updated by the plugin and should not be manually changed.',
+                tip: 'The timestamp of when the last complete import of external data was successfully synced. This value is automatically updated by the plugin and should not be manually changed.',
                 placeholder: 'No successful import yet',
                 readonly: true
             ))
             ->addSettingsField(new SettingsFieldNumber(
-                id: AgencyDataRESTService::CURRENT_OFFSET_FIELD_ID,
+                id: RemoteDataRESTService::CURRENT_OFFSET_FIELD_ID,
                 label: 'Current Offset',
-                tip: 'Current offset value used when fetching agency data from the REST API. A value of 0 indicates the process is complete and a full new batch is ready to start. A value greater than 0 indicates a sync process was started and has not completed. This value is automatically updated by the plugin and should not be manually changed under typical conditions. Can be manually set to 0 to start over.'
+                tip: 'Current offset value used when fetching external data from the REST API. A value of 0 indicates the process is complete and a full new batch is ready to start. A value greater than 0 indicates a sync process was started and has not completed. This value is automatically updated by the plugin and should not be manually changed under typical conditions. Can be manually set to 0 to start over.'
             ))
         ;
 
-        $this->addSettingsSection('ai_hcai_customfield', 'Advanced Custom Fields plugin mapping')
+        $this->addSettingsSection('ecs_customfield', 'Advanced Custom Fields plugin mapping')
             ->addSettingsField(new SettingsFieldSelect(
                 id: AcfFieldSync::SETTINGS_BASE_FIELD_GROUP_ID,
                 label: 'Field Group to use',
-                tip: '<a href="' . AcfFieldSync::FIELD_GROUPS_URL . '">Field group (in the Advanced Custom Fields plugin)</a> with the custom fields the agency data should be mapped to. Custom field names should exactly match the agency data field names. Nested arrays should be set as "Repeater" type fields, and nested objects should be set as "Group" type fields.',
+                tip: '<a href="' . AcfFieldSync::FIELD_GROUPS_URL . '">Field group (in the Advanced Custom Fields plugin)</a> with the custom fields the external data should be mapped to. Custom field names should exactly match the external data field names. Nested arrays should be set as "Repeater" type fields, and nested objects should be set as "Group" type fields.',
                 options: AcfFieldSync::getFieldGroupsSelectOptions()
             ))
             ->addSettingsField(new SettingsFieldSelect(
                 id: AcfFieldSync::SETTINGS_UNIQUEID_FIELD_ID,
-                label: 'Field to use as unique agency identifier.',
+                label: 'Field to use as unique entity identifier.',
                 tip: 'Field (in the Advanced Custom Fields plugin) that should be used to uniquely identify each agency. NOTE: It is NOT RECOMMENDED to use the agency\'s name due to names changing often and not always being unique.',
                 options: AcfFieldSync::getFieldSelectOptions()
             ))
+            
             ->addSettingsField(new SettingsFieldText(
+                id: \ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields\AcfPostSync::SETTINGS_TARGET_POST_TYPE_ID,
+                label: 'Target Post Type Slug',
+                tip: 'The WordPress post type slug this plugin will create/update (e.g., "entity", "listing", "provider").',
+                placeholder: 'entity'
+            ))
+->addSettingsField(new SettingsFieldText(
                 id: AcfFieldSync::LOGO_BASE_URL_FIELD_ID,
                 label: 'Base URL for Logo Images',
-                tip: 'Base URL to use when constructing the full URL for the logo image. The logo image URL will be constructed by appending the logo image field value to this base URL. If this value is left empty, the logo field in the agency data must contain the full URL.',
+                tip: 'Base URL to use when constructing the full URL for the logo image. The logo image URL will be constructed by appending the logo image field value to this base URL. If this value is left empty, the logo field in the external data must contain the full URL.',
                 placeholder: 'https://www.example.com'
             ))
         ;
         
-        $this->addSettingsSection('ai_hcai_oauth', 'OpenID Connect Settings')
+        $this->addSettingsSection('ecs_oauth', 'OpenID Connect Settings')
             ->addSettingsField(new SettingsFieldText(
-                id: 'ai_hcai_openid_token_endpoint',
+                id: 'ecs_openid_token_endpoint',
                 label: 'OpenID Token Endpoint URL',
-                tip: 'URL for the OpenID service token endpoint used for issuing access tokens. This service will acquire an access token to use when fetching agency data.',
+                tip: 'URL for the OpenID service token endpoint used for issuing access tokens. This service will acquire an access token to use when fetching external data.',
                 placeholder: 'https://sso.example.com/auth/realms/myrealm/protocol/openid-connect/token'
             ))
             ->addSettingsField(new SettingsFieldText(
-                id: 'ai_hcai_openid_client_id',
+                id: 'ecs_openid_client_id',
                 label: 'OpenID Client ID',
-                tip: 'Client ID to use for authentication via an OpenID client_credentials grant for getting an access token that will be used for fetching the agency data from a remote service.',
+                tip: 'Client ID to use for authentication via an OpenID client_credentials grant for getting an access token that will be used for fetching the external data from a remote service.',
                 placeholder: 'username'
             ))
             ->addSettingsField(new SettingsFieldPassword(
-                id: 'ai_hcai_openid_client_secret',
+                id: 'ecs_openid_client_secret',
                 label: 'OpenID Client Secret',
-                tip: 'Client secret to use for authentication via an OpenID client_credentials grant for getting an access token that will be used for fetching the agency data from a remote service.',
+                tip: 'Client secret to use for authentication via an OpenID client_credentials grant for getting an access token that will be used for fetching the external data from a remote service.',
                 placeholder: 'password'
             ))
         ;
 
-        $this->addSettingsSection('ai_hcai_restapi', 'Agency Data REST API Settings')
+        $this->addSettingsSection('ecs_restapi', 'External Data Source Settings')
             ->addSettingsField(new SettingsFieldText(
-                id: 'ai_hcai_restapi_endpoint',
+                id: 'ecs_restapi_endpoint',
                 label: 'REST API Endpoint (no query string)',
-                tip: 'URL for the REST API endpoint that will be used to retrieve agency data. Do not include the query string here.',
-                placeholder: 'https://api.example.com/agency_endpoint'
+                tip: 'URL for the REST API endpoint that will be used to retrieve external data. Do not include the query string here.',
+                placeholder: 'https://api.example.com/endpoint'
             ))
             ->addSettingsField(new SettingsFieldSelect(
-                id: 'ai_hcai_restapi_http_request_method',
+                id: 'ecs_restapi_http_request_method',
                 label: 'HTTP Request Method',
-                tip: 'HTTP request method that will be used when calling the REST API endpoint URL to retrieve agency data (GET, POST, PUT, etc.).',
+                tip: 'HTTP request method that will be used when calling the REST API endpoint URL to retrieve external data (GET, POST, PUT, etc.).',
                 options: [
                     'GET' => 'GET',
                     'POST' => 'POST',
@@ -231,19 +238,19 @@ class Settings {
                 default_option: 'GET'                
             ))
             ->addSettingsField(new SettingsFieldNumber(
-                id: 'ai_hcai_max_results_per_request',
+                id: 'ecs_max_results_per_request',
                 label: 'REST API Max Results Per Request',
                 tip: 'Maximum number of results fetch for each request from the REST service per request. Needs to be set such that each request takes less than the maximum execution time allowed by the server, typically 180 seconds for PHP op_chache defaults.',
                 placeholder: '20'
             ))
             ->addSettingsField(new SettingsFieldNumber(
-                id: 'ai_hcai_restapi_timeout_seconds',
+                id: 'ecs_restapi_timeout_seconds',
                 label: 'REST API Timeout Seconds',
                 tip: 'Timeout in seconds to use for the REST call, after which the request will be cancelled.',
                 placeholder: '600'
             ))
             ->addSettingsField(new SettingsFieldTextArea(
-                id: 'ai_hcai_restapi_query_string',
+                id: 'ecs_restapi_query_string',
                 label: 'Query String (URL-encoded)',
                 tip: 'Optional URL-encoded query string to use when calling the REST API.<br/>Spaces/tabs/newlines are allowed for formatting large queries for easier editing and will be removed when the call is made.',
                 placeholder: 'keya=valuea&keyb=valueb'

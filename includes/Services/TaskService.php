@@ -1,58 +1,58 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\Services;
+namespace ExampleVendor\ExternalContentSyncImporter\Services;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields\AcfAgencyModel;
-use ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields\AcfExternalFunctions;
-use ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields\AcfFieldIndex;
-use ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields\AcfFieldSync;
-use ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields\AcfPostSync;
-use ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields\AcfTaxonomySync;
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogLevel;
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogService;
-use ActivatedInsights\HomeCareAgencyImporter\Plugin;
+use ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields\AcfEntityModel;
+use ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields\AcfExternalFunctions;
+use ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields\AcfFieldIndex;
+use ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields\AcfFieldSync;
+use ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields\AcfPostSync;
+use ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields\AcfTaxonomySync;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogLevel;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogService;
+use ExampleVendor\ExternalContentSyncImporter\Plugin;
 use WpOrg\Requests\Exception\InvalidArgument;
 
 /**
  * Class for performing tests/simulations/verifications of the plugin
  * and its expected functionality.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\Services
+ * @package ExampleVendor\ExternalContentSyncImporter\Services
  */
 class TaskService {
     /**
      * Plugin settings field ID that will store the name of the
      * task function to run when one is manually selected.
      */
-    const SETTINGS_RUN_TASK_ID = 'ai_hcai_acf_run_task';
+    const SETTINGS_RUN_TASK_ID = 'ecs_acf_run_task';
 
     /**
      * URL query string key used to set a task function to run from
      * an external web request. The query string value should be the
      * name of a public method from this class. (e.g. ai_haci_task_function=runAgencyImport)
      */
-    const TASK_FUNCTION_QUERY_VAR = 'ai_hcai_task_function';
+    const TASK_FUNCTION_QUERY_VAR = 'ecs_task_function';
 
     /**
      * URL query string key used to set the auth key for running a task
      * from an external web request. The query string value should match
      * the auth key stored in the settings.
      */
-    const TASK_AUTH_KEY_QUERY_VAR = 'ai_hcai_task_auth_key';
+    const TASK_AUTH_KEY_QUERY_VAR = 'ecs_task_auth_key';
 
     /**
      * Plugin settings field ID that will store the auth key for running
      * a task from an external web request.
      */
-    const TASK_AUTH_KEY_FIELD_ID = 'ai_hcai_task_auth_key_field';
+    const TASK_AUTH_KEY_FIELD_ID = 'ecs_task_auth_key_field';
 
     /**
      * Plugin settings field ID that will store the date/time of the last
      * successful import task run.
      */
-    const TASK_LAST_SUCCESSFUL_IMPORT_FIELD_ID = 'ai_hcai_task_last_successful_import_date';
+    const TASK_LAST_SUCCESSFUL_IMPORT_FIELD_ID = 'ecs_task_last_successful_import_date';
 
      /**
      * Runs a task if one was selected on the plugin settings page,
@@ -126,8 +126,8 @@ class TaskService {
      * @throws InvalidArgument 
      */
     public function runAgencyImport(): void {
-        update_option('ai_hcai_task_last_import_start_date', (new \DateTime())->format('Y-m-d H:i:s'));
-        $startingOffset = get_option(AgencyDataRESTService::CURRENT_OFFSET_FIELD_ID, 0);
+        update_option('ecs_task_last_import_start_date', (new \DateTime())->format('Y-m-d H:i:s'));
+        $startingOffset = get_option(RemoteDataRESTService::CURRENT_OFFSET_FIELD_ID, 0);
 
         $plugin = new Plugin();
         LogService::log(__METHOD__, LogLevel::INFO, 'Starting agency import action, initial offset: '. $startingOffset, true);
@@ -135,7 +135,7 @@ class TaskService {
         $token = $plugin->getOpenIdToken();
         LogService::log(__METHOD__, LogLevel::INFO, 'STAGE 1/4: COMPLETE Fetch OpenID Token', true);
 
-        $agencyDataRestService = new AgencyDataRESTService($token);
+        $agencyDataRestService = new RemoteDataRESTService($token);
         $agencyDataResponse = $agencyDataRestService->getAgencyData($token);
         LogService::log(__METHOD__, LogLevel::INFO, 'STAGE 2/4: COMPLETE Get Agency Data', true);
 
@@ -147,10 +147,10 @@ class TaskService {
         $agencyCount = count($agencyDataResponse);
         for($i = 0; $i < $agencyCount; $i++) {
             $agencyData = $agencyDataResponse[$i];
-            $agency = new AcfAgencyModel($agencyData);
+            $agency = new AcfEntityModel($agencyData);
 
             $agencyPost = new AcfPostSync($agency);
-            $postId = $agencyPost->syncAgencyPost();
+            $postId = $agencyPost->syncEntityPost();
             
             $fieldSync = new AcfFieldSync($agency, $fieldIndex, $postId);
             $fieldSync->syncAgencyFields();
@@ -165,7 +165,7 @@ class TaskService {
         LogService::log(__METHOD__, LogLevel::INFO, 'STAGE 4/4: COMPLETE Agency import action complete.', true);
 
         $newOffset = $agencyDataRestService->updateCurrentOffset();
-        if ($newOffset == AgencyDataRESTService::COMPLETED_OFFSET_VALUE) {
+        if ($newOffset == RemoteDataRESTService::COMPLETED_OFFSET_VALUE) {
             update_option(TaskService::TASK_LAST_SUCCESSFUL_IMPORT_FIELD_ID, (new \DateTime())->format('Y-m-d H:i:s'));
             LogService::log(__METHOD__, LogLevel::INFO, 'BATCH COMPLETE: All agencies have been imported. Resetting offset.', true);
             http_response_code(206);
@@ -193,7 +193,7 @@ class TaskService {
         $plugin = new Plugin();
         $token = $plugin->getOpenIdToken();
 
-        $agencyDataRestService = new AgencyDataRESTService($token);
+        $agencyDataRestService = new RemoteDataRESTService($token);
         $agencyData = $agencyDataRestService->getAgencyData($token);
         
         $agencySample = substr(json_encode($agencyData), 0, $logCharLimit);
@@ -208,7 +208,7 @@ class TaskService {
     }
 
     /**
-     * Fetches the first agency's data and displays the AcfAgencyModel
+     * Fetches the first agency's data and displays the AcfEntityModel
      * data as parsed by the plugin, including all the generated/aggregate
      * fields that are not in the original raw data.
      * 
@@ -220,11 +220,11 @@ class TaskService {
         $plugin = new Plugin();
         $token = $plugin->getOpenIdToken();
 
-        $agencyDataRestService = new AgencyDataRESTService($token);
+        $agencyDataRestService = new RemoteDataRESTService($token);
         $agencyData = $agencyDataRestService->getAgencyData($token)[0] ?? [];
         
-        $agencyModel = (new AcfAgencyModel($agencyData))->toArray();
-        $agencySample = substr(json_encode($agencyModel), 0, $logCharLimit);
+        $entityModel = (new AcfEntityModel($agencyData))->toArray();
+        $agencySample = substr(json_encode($entityModel), 0, $logCharLimit);
  
         // Log the response and output an admin notification
         LogService::log(

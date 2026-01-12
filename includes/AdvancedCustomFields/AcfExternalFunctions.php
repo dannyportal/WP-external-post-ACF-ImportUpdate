@@ -1,11 +1,11 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields;
+namespace ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogLevel;
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogService;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogLevel;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogService;
 
 /**
  * Service to handle interop and integration between this plugin and
@@ -13,7 +13,7 @@ use ActivatedInsights\HomeCareAgencyImporter\Services\LogService;
  * to Advanced Custom Fields functions should be done in this class
  * to minimize breakage/refactoring if they change their plugin.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\Services
+ * @package ExampleVendor\ExternalContentSyncImporter\Services
  */
 class AcfExternalFunctions {
     /**

@@ -1,11 +1,11 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\Services;
+namespace ExampleVendor\ExternalContentSyncImporter\Services;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogService;
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogLevel;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogService;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogLevel;
 use WpOrg\Requests\Exception\InvalidArgument;
 
 /**
@@ -14,7 +14,7 @@ use WpOrg\Requests\Exception\InvalidArgument;
  * retrieve agency data from a REST service as the Auth: Bearer token
  * in the request headers.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\Services
+ * @package ExampleVendor\ExternalContentSyncImporter\Services
  */
 class OpenIDService {
     /**
@@ -28,7 +28,7 @@ class OpenIDService {
      * Unique key to use with the WordPress transient() method to indicate
      * there is a valid OpenID access token from this service.
      */
-    const TOKEN_EXPIRATION_TRANSIENT_KEY = 'ai_hcai_openid_token_expiration';
+    const TOKEN_EXPIRATION_TRANSIENT_KEY = 'ecs_openid_token_expiration';
 
     /**
      * The fetched OpenID access token from the token endpoint.

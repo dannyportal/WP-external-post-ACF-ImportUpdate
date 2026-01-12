@@ -1,15 +1,15 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\Settings;
+namespace ExampleVendor\ExternalContentSyncImporter\Settings;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\Settings\SettingsField;
+use ExampleVendor\ExternalContentSyncImporter\Settings\SettingsField;
 
 /**
  * HTML text input field type for settings plugin forms.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\Settings
+ * @package ExampleVendor\ExternalContentSyncImporter\Settings
  */
 class SettingsFieldText extends SettingsField {
     

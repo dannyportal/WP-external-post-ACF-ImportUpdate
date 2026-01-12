@@ -1,10 +1,10 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter\Services;
+namespace ExampleVendor\ExternalContentSyncImporter\Services;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogLevel;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogLevel;
 use DateTime;
 
 /**
@@ -12,7 +12,7 @@ use DateTime;
  * that the calling function is known, and ensure a log level is indicated.
  * Also allows creating a log and admin notice at the same time for convenience.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter\Services
+ * @package ExampleVendor\ExternalContentSyncImporter\Services
  */
 class LogService {
     /**

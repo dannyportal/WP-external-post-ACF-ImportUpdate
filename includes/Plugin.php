@@ -1,17 +1,17 @@
 <?php
 
-namespace ActivatedInsights\HomeCareAgencyImporter;
+namespace ExampleVendor\ExternalContentSyncImporter;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly.
 
-use ActivatedInsights\HomeCareAgencyImporter\Settings\Settings;
-use ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields\AcfShortCodes;
-use ActivatedInsights\HomeCareAgencyImporter\AdvancedCustomFields\AcfSearch;
-use ActivatedInsights\HomeCareAgencyImporter\Services\AgencyDataRESTService;
-use ActivatedInsights\HomeCareAgencyImporter\Services\EncryptionService;
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogLevel;
-use ActivatedInsights\HomeCareAgencyImporter\Services\LogService;
-use ActivatedInsights\HomeCareAgencyImporter\Services\OpenIDService;
+use ExampleVendor\ExternalContentSyncImporter\Settings\Settings;
+use ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields\AcfShortCodes;
+use ExampleVendor\ExternalContentSyncImporter\AdvancedCustomFields\AcfSearch;
+use ExampleVendor\ExternalContentSyncImporter\Services\RemoteDataRESTService;
+use ExampleVendor\ExternalContentSyncImporter\Services\EncryptionService;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogLevel;
+use ExampleVendor\ExternalContentSyncImporter\Services\LogService;
+use ExampleVendor\ExternalContentSyncImporter\Services\OpenIDService;
 use WpOrg\Requests\Exception\InvalidArgument;
 
 /**
@@ -21,7 +21,7 @@ use WpOrg\Requests\Exception\InvalidArgument;
  * 
  * Keeps the plugin-specific logic contained away from the global PHP space.
  * 
- * @package ActivatedInsights\HomeCareAgencyImporter
+ * @package ExampleVendor\ExternalContentSyncImporter
  */
 class Plugin {
 
@@ -32,12 +32,12 @@ class Plugin {
      * class constant here instead of just a "magic string" that gets used 
      * everywhere for better code traceability.
      */
-    const RUN_IMPORT_ACTION_HOOK = 'homecare-agency-importer-run-import';
+    const RUN_IMPORT_ACTION_HOOK = 'external-content-sync-importer-run-import';
 
     /**
      * Menu slug to use for plugin admin page URLs.
      */
-    const MENU_SLUG = 'ai-hcai';
+    const MENU_SLUG = 'ai-ecsi';
 
     /**
      * Plugin settings class instance that is used to the field
@@ -54,7 +54,7 @@ class Plugin {
     public function initialize(): void {
         // Initialize the plugin settings/fields
         $this->settings = new Settings(
-            pageTitle: 'Home Care Agency Importer - Plugin Settings',
+            pageTitle: 'External Content Sync Importer - Plugin Settings',
             menuTitle: "HCA Importer",
             capability: 'read',
             menuSlug: Plugin::MENU_SLUG,
@@ -95,16 +95,16 @@ class Plugin {
     /**
      * Gets the token from the OpenIDService using the current
      * plugin settings. This access token is to be used when making
-     * REST calls to get the agency data.
+     * REST calls to get the external data.
      * 
-     * @return string Returns the access token that should be used when making agency data REST calls.
+     * @return string Returns the access token that should be used when making external data REST calls.
      * @throws InvalidArgument 
      */
     public function getOpenIdToken(): string {
         // Get all the necessary options from the plugin settings
-        $tokenEndpoint = get_option('ai_hcai_openid_token_endpoint');
-        $clientId = get_option('ai_hcai_openid_client_id');
-        $clientSecret = EncryptionService::decrypt_reversible(get_option('ai_hcai_openid_client_secret'));
+        $tokenEndpoint = get_option('ecs_openid_token_endpoint');
+        $clientId = get_option('ecs_openid_client_id');
+        $clientSecret = EncryptionService::decrypt_reversible(get_option('ecs_openid_client_secret'));
     
         // Get the OpenID access token
         $openIdService = new OpenIDService(
