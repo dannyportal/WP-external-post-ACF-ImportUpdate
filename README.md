@@ -77,17 +77,3 @@ WordPress “cron” can be traffic-based. For consistent scheduling:
 This prevents missed runs on low-traffic sites.
 
 ---
-
-## Adapting it for a different industry
-To reuse this for a different use case, you typically only change:
-- the **endpoint URL**
-- the **target post type**
-- the **ACF field names/mapping** in the plugin’s mapper/model
-
-No “home care” assumptions are required—treat the remote records as generic “entities.”
-
----
-
-## Safety note (GitHub / public repos)
-Never commit real secrets (tokens, private URLs, credentials).  
-Use environment variables or wp-config constants, and keep `.env` ignored.
