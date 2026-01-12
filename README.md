@@ -1,21 +1,32 @@
-# HomeCareAgencyImporter (Sanitized)
+# Dynamic Post Importer with ACF Integration
 
-This repository is a sanitized export intended for publishing on GitHub.
+This WordPress plugin dynamically imports and updates posts from an external source, ensuring that custom fields are always up-to-date. It is designed to be flexible and can be adapted for various types of content beyond a specific industry.
 
-## What was scrubbed
-- A hardcoded internal-looking URL host was replaced in:
-  `includes/AdvancedCustomFields/AcfAgencyModel.php` (`LOGO_URL_PREFIX`).
+## Features
 
-## Configuration (keep secrets out of git)
-If this plugin ever needs credentials (API keys, DB URLs, OAuth client secrets, webhooks, etc.), provide them at runtime and **do not** commit them to the repo.
+- **Daily Content Sync:** Automatically fetches posts from a specified external endpoint and updates them daily.
+- **ACF Integration:** Updates Advanced Custom Fields (ACF) associated with each post to reflect any changes in titles, logos, or other fields.
+- **Flexible Configuration:** Easily adaptable to different industries or use cases by changing the endpoint and field mappings.
 
-Recommended patterns:
-- Use environment variables (e.g., `.env` in local dev) and read them in your bootstrap code.
-- Or store non-secret configuration in WordPress options, and keep secrets in server-side env vars.
+## Usage
 
-This repo includes a `.gitignore` that ignores `.env` files, private keys, and other common secret artifacts.
+1. **Configuration:** Set your external data source URL and map the ACF fields in the plugin settings.
+2. **Automated Updates:** The plugin runs a daily cron job to check for updates and sync any changes.
+3. **Customizable Fields:** Adjust field mappings as needed to match your custom post types and ACF setup.
 
-### Logo host
-Set the real logo host via configuration at deploy time instead of hardcoding it:
-- Replace `https://example.com` with your public host, or
-- Refactor `LOGO_URL_PREFIX` into a WP option / setting.
+## Installation
+
+1. Upload the plugin files to the `/wp-content/plugins/` directory.
+2. Activate the plugin through the 'Plugins' menu in WordPress.
+3. Go to the plugin settings to configure your external data source and field mappings.
+
+## Configuration
+
+- **Endpoint URL:** Specify the URL of the external API or data source.
+- **Field Mapping:** Define which ACF fields correspond to which fields from the external data.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE.md file for details.
+
+---
