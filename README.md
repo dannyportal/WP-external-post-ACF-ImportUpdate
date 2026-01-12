@@ -1,4 +1,4 @@
-# External Content Sync Importer (WordPress) — Quick Setup Tutorial
+# External Content Sync Importer (WordPress)
 
 This plugin pulls records from a remote source and **creates/updates WordPress posts on a schedule**, including **ACF fields**, so your site stays current without manual edits. It’s built to be reusable for any “directory-style” content (profiles, locations, partners, listings, etc.).
 
